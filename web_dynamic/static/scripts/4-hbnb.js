@@ -23,16 +23,17 @@ $(document).ready(function () {
       } else $('#api_status').removeClass('available');
     }
   });
-  $.ajax({
-    url: 'http://127.0.0.1:5001/api/v1/places_search',
-    type: 'POST',
-    data: '{}',
-    dataType: 'json',
-    contentType: 'application/json',
-    success: function (data) {
-      for (let i = 0; i < data.length; i++) {
-        const place = data[i];
-        $('.places ').append(`
+  function loadPlaces (data = {}) {
+    $.ajax({
+      url: 'http://127.0.0.1:5001/api/v1/places_search',
+      type: 'POST',
+      data: JSON.stringify(data),
+      dataType: 'json',
+      contentType: 'application/json',
+      success: function (data) {
+        for (let i = 0; i < data.length; i++) {
+          const place = data[i];
+          $('.places ').append(`
   <article>
     <div class="title_box">
       <h2> ${place.name}</h2>
@@ -58,7 +59,18 @@ $(document).ready(function () {
       <p>${place.description}</p>
     </div>
   </article>`);
+        }
       }
+    });
+  }
+  loadPlaces(); // load the page for the first time
+
+  $('button[type="button"]').click(function () {
+    const search = Object.values(amenities);
+
+    if (search.length !== 0) {
+      const data = { amenities: search };
+      loadPlaces(data);
     }
   });
 });
