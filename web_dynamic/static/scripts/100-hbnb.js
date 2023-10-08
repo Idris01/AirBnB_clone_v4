@@ -1,14 +1,15 @@
 $(document).ready(function () {
-  const amenities = {};
+  const searchData = { amenities: {}, states: {}, cities: {} };
+
   $(document).on('change', "input[type='checkbox']", function () {
     if (this.checked) {
-      amenities[$(this).data('id')] = $(this).data('name');
+      searchData[$(this).data('type')][$(this).data('id')] = $(this).data('name');
     } else {
-      delete amenities[$(this).data('id')];
+      delete searchData[$(this).data('type')][$(this).data('id')];
     }
-    const res = Object.values(amenities);
+    const res = Object.values(searchData.amenities);
     if (res.length > 0) {
-      $('div.amenities > h4').text(Object.values(amenities).join(', '));
+      $('div.amenities > h4').text(res.join(', '));
     } else {
       $('div.amenities > h4').html('&nbsp;');
     }
@@ -34,7 +35,7 @@ $(document).ready(function () {
         $('.places').empty();
         for (let i = 0; i < data.length; i++) {
           const place = data[i];
-          $('.places').append(`
+          $('.places ').append(`
   <article>
     <div class="title_box">
       <h2> ${place.name}</h2>
@@ -67,11 +68,18 @@ $(document).ready(function () {
   loadPlaces(); // load the page for the first time
 
   $('button[type="button"]').click(function () {
-    const search = Object.keys(amenities);
-
-    if (search.length !== 0) {
-      const data = { amenities: search };
-      loadPlaces(data);
+    // reformat searchData to match requirement
+    const search = {};
+    let values = [];
+    Object.keys(searchData).forEach(function (key) {
+      const newValues = Object.keys(searchData[key]);
+      if (newValues) search[key] = newValues;
+      values = values.concat(newValues);
+    });
+    if (values.length !== 0) {
+      loadPlaces(search);
+    } else {
+      loadPlaces();
     }
   });
 });
